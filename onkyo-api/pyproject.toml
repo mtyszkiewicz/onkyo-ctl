@@ -6,7 +6,7 @@ authors = ["Marcin Tyszkiewicz <56219944+mtyszkiewicz@users.noreply.github.com>"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = "^3.10"
 onkyo-eiscp = "^1.2.7"
 fastapi = "^0.110.1"
 pydantic-settings = "^2.2.1"
