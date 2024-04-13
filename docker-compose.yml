@@ -1,0 +1,15 @@
+version: "3.9"
+
+services:
+  database:
+    build:
+      context: ./onkyo-api
+      dockerfile: Dockerfile
+    container_name: onkyo-api
+    volumes:
+      - onkyo-api-data:/app
+    ports:
+      - "8001:8000"
+
+volumes:
+  onkyo-api-data:
