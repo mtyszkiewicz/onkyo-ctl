@@ -4,8 +4,8 @@ from time import sleep
 
 import eiscp
 from fastapi import FastAPI, HTTPException
-from onkyo_api.config import (DeviceInfo, Settings, profile_friendly_name,
-                              profiles)
+
+from onkyo_api.config import DeviceInfo, Settings, profile_friendly_name, profiles
 
 MAX_RETRIES = 5
 RETRY_COOLDOWN = 1
@@ -87,7 +87,7 @@ class OnkyoProxy:
             return self.power_on()
 
     def get_volume(self) -> int:
-        resp = onkyo.command(f"master-volume=query")
+        resp = onkyo.command("master-volume=query")
         return resp[1]
 
     def set_volume(self, value: int) -> int:
@@ -175,7 +175,9 @@ def profile_query():
 
 @app.put("/profile")
 def select_profile(name: str):
-    return onkyo.set_profile(name)
+    # return onkyo.set_profile(name)
+    onkyo.set_profile(name)
+    return onkyo.get_device_info()
 
 
 @app.get("/volume")
@@ -187,17 +189,23 @@ def volume_query():
 def volume_set(level: int):
     if level > MAX_VOLUME:
         level = MAX_VOLUME
-    return {"level": onkyo.set_volume(level)}
+    # return {"level": onkyo.set_volume(level)}
+    onkyo.set_level(level)
+    return onkyo.get_device_info()
 
 
 @app.put("/volume/up")
 def volume_up():
-    return {"level": onkyo.volume_up()}
+    # return {"level": onkyo.volume_up()}
+    onkyo.volume_up()
+    return onkyo.get_device_info()
 
 
 @app.put("/volume/down")
 def volume_down():
-    return {"level": onkyo.volume_down()}
+    # return {"level": onkyo.volume_down()}
+    onkyo.volume_down()
+    return onkyo.get_device_info()
 
 
 @app.get("/subwoofer")
@@ -207,18 +215,20 @@ def subwoofer_query():
 
 @app.put("/subwoofer")
 def subwoofer_set(level: int):
-    if not (-8 < level < 8):
-        return HTTPException(
-            status_code=404, detail="Subwoofer level must be between -8 and 8"
-        )
-    return {"level": onkyo.set_subwoofer_level(level)}
+    # return {"level": onkyo.set_subwoofer_level(level)}
+    onkyo.set_subwoofer_level(level)
+    return onkyo.get_device_info()
 
 
 @app.put("/subwoofer/up")
 def subwoofer_up():
-    return {"level": onkyo.subwoofer_level_up()}
+    # return {"level": onkyo.subwoofer_level_up()}
+    onkyo.subwoofer_level_up()
+    return onkyo.get_device_info()
 
 
 @app.put("/subwoofer/down")
 def subwoofer_down():
-    return {"level": onkyo.subwoofer_level_down()}
+    # return {"level": onkyo.subwoofer_level_down()}
+    onkyo.subwoofer_level_down()
+    return onkyo.get_device_info()
