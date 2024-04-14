@@ -1,0 +1,452 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		338154002BCC2F3200A67EB5 /* OnkyoController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 338153FF2BCC2F3200A67EB5 /* OnkyoController.swift */; };
+		33C1504A2BCC0C540020F47A /* onkyo-ctl Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 33C150492BCC0C540020F47A /* onkyo-ctl Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		33C1504F2BCC0C540020F47A /* onkyo_ctlApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33C1504E2BCC0C540020F47A /* onkyo_ctlApp.swift */; };
+		33C150512BCC0C540020F47A /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33C150502BCC0C540020F47A /* ContentView.swift */; };
+		33C150532BCC0C540020F47A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 33C150522BCC0C540020F47A /* Assets.xcassets */; };
+		33C150562BCC0C540020F47A /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 33C150552BCC0C540020F47A /* Preview Assets.xcassets */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		33C1504B2BCC0C540020F47A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 33C1503D2BCC0C530020F47A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 33C150482BCC0C540020F47A;
+			remoteInfo = "onkyo-ctl Watch App";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		33C1505C2BCC0C540020F47A /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				33C1504A2BCC0C540020F47A /* onkyo-ctl Watch App.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		338153FF2BCC2F3200A67EB5 /* OnkyoController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnkyoController.swift; sourceTree = "<group>"; };
+		33C150432BCC0C540020F47A /* onkyo-ctl.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "onkyo-ctl.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		33C150492BCC0C540020F47A /* onkyo-ctl Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "onkyo-ctl Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		33C1504E2BCC0C540020F47A /* onkyo_ctlApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = onkyo_ctlApp.swift; sourceTree = "<group>"; };
+		33C150502BCC0C540020F47A /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		33C150522BCC0C540020F47A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		33C150552BCC0C540020F47A /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		33C150462BCC0C540020F47A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		33C1503C2BCC0C530020F47A = {
+			isa = PBXGroup;
+			children = (
+				33C1504D2BCC0C540020F47A /* onkyo-ctl Watch App */,
+				33C150442BCC0C540020F47A /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		33C150442BCC0C540020F47A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				33C150432BCC0C540020F47A /* onkyo-ctl.app */,
+				33C150492BCC0C540020F47A /* onkyo-ctl Watch App.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		33C1504D2BCC0C540020F47A /* onkyo-ctl Watch App */ = {
+			isa = PBXGroup;
+			children = (
+				33C1504E2BCC0C540020F47A /* onkyo_ctlApp.swift */,
+				338153FF2BCC2F3200A67EB5 /* OnkyoController.swift */,
+				33C150502BCC0C540020F47A /* ContentView.swift */,
+				33C150522BCC0C540020F47A /* Assets.xcassets */,
+				33C150542BCC0C540020F47A /* Preview Content */,
+			);
+			path = "onkyo-ctl Watch App";
+			sourceTree = "<group>";
+		};
+		33C150542BCC0C540020F47A /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				33C150552BCC0C540020F47A /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		33C150422BCC0C540020F47A /* onkyo-ctl */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 33C1505D2BCC0C540020F47A /* Build configuration list for PBXNativeTarget "onkyo-ctl" */;
+			buildPhases = (
+				33C150412BCC0C540020F47A /* Resources */,
+				33C1505C2BCC0C540020F47A /* Embed Watch Content */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				33C1504C2BCC0C540020F47A /* PBXTargetDependency */,
+			);
+			name = "onkyo-ctl";
+			productName = "onkyo-ctl";
+			productReference = 33C150432BCC0C540020F47A /* onkyo-ctl.app */;
+			productType = "com.apple.product-type.application.watchapp2-container";
+		};
+		33C150482BCC0C540020F47A /* onkyo-ctl Watch App */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 33C150592BCC0C540020F47A /* Build configuration list for PBXNativeTarget "onkyo-ctl Watch App" */;
+			buildPhases = (
+				33C150452BCC0C540020F47A /* Sources */,
+				33C150462BCC0C540020F47A /* Frameworks */,
+				33C150472BCC0C540020F47A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "onkyo-ctl Watch App";
+			productName = "onkyo-ctl Watch App";
+			productReference = 33C150492BCC0C540020F47A /* onkyo-ctl Watch App.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		33C1503D2BCC0C530020F47A /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1530;
+				LastUpgradeCheck = 1530;
+				TargetAttributes = {
+					33C150422BCC0C540020F47A = {
+						CreatedOnToolsVersion = 15.3;
+					};
+					33C150482BCC0C540020F47A = {
+						CreatedOnToolsVersion = 15.3;
+					};
+				};
+			};
+			buildConfigurationList = 33C150402BCC0C530020F47A /* Build configuration list for PBXProject "onkyo-ctl" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 33C1503C2BCC0C530020F47A;
+			productRefGroup = 33C150442BCC0C540020F47A /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				33C150422BCC0C540020F47A /* onkyo-ctl */,
+				33C150482BCC0C540020F47A /* onkyo-ctl Watch App */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		33C150412BCC0C540020F47A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		33C150472BCC0C540020F47A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				33C150562BCC0C540020F47A /* Preview Assets.xcassets in Resources */,
+				33C150532BCC0C540020F47A /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		33C150452BCC0C540020F47A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				33C150512BCC0C540020F47A /* ContentView.swift in Sources */,
+				338154002BCC2F3200A67EB5 /* OnkyoController.swift in Sources */,
+				33C1504F2BCC0C540020F47A /* onkyo_ctlApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		33C1504C2BCC0C540020F47A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 33C150482BCC0C540020F47A /* onkyo-ctl Watch App */;
+			targetProxy = 33C1504B2BCC0C540020F47A /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		33C150572BCC0C540020F47A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		33C150582BCC0C540020F47A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		33C1505A2BCC0C540020F47A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"onkyo-ctl Watch App/Preview Content\"";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "onkyo-ctl";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKWatchOnly = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "kolumna.io.onkyo-ctl.watchkitapp";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.4;
+			};
+			name = Debug;
+		};
+		33C1505B2BCC0C540020F47A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"onkyo-ctl Watch App/Preview Content\"";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "onkyo-ctl";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKWatchOnly = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "kolumna.io.onkyo-ctl.watchkitapp";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 10.4;
+			};
+			name = Release;
+		};
+		33C1505E2BCC0C540020F47A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				INFOPLIST_KEY_CFBundleDisplayName = "onkyo-ctl";
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "kolumna.io.onkyo-ctl";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		33C1505F2BCC0C540020F47A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				INFOPLIST_KEY_CFBundleDisplayName = "onkyo-ctl";
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "kolumna.io.onkyo-ctl";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		33C150402BCC0C530020F47A /* Build configuration list for PBXProject "onkyo-ctl" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				33C150572BCC0C540020F47A /* Debug */,
+				33C150582BCC0C540020F47A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		33C150592BCC0C540020F47A /* Build configuration list for PBXNativeTarget "onkyo-ctl Watch App" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				33C1505A2BCC0C540020F47A /* Debug */,
+				33C1505B2BCC0C540020F47A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		33C1505D2BCC0C540020F47A /* Build configuration list for PBXNativeTarget "onkyo-ctl" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				33C1505E2BCC0C540020F47A /* Debug */,
+				33C1505F2BCC0C540020F47A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 33C1503D2BCC0C530020F47A /* Project object */;
+}
