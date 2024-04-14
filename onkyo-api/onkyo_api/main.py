@@ -1,23 +1,23 @@
 import logging
 from dataclasses import dataclass
-from typing import Optional
-
 from time import sleep
+
 import eiscp
 from fastapi import FastAPI, HTTPException
-
-from onkyo_api.config import Profile, Settings, profile_friendly_name, profiles
+from onkyo_api.config import (DeviceInfo, Settings, profile_friendly_name,
+                              profiles)
 
 MAX_RETRIES = 5
 RETRY_COOLDOWN = 1
-MAX_VOLUME = 40
+MAX_VOLUME = 50
 
 logger = logging.getLogger("onkyo")
 
 
 def level_format(level: int) -> str:
-    sign_prefix = '-' if level < 0 else '+'
+    sign_prefix = "-" if level < 0 else "+"
     return sign_prefix + str(abs(level)).zfill(2)
+
 
 def level_parse(resp: str) -> int:
     return int(resp[-3:])
@@ -54,6 +54,20 @@ class OnkyoProxy:
                 if i == MAX_RETRIES - 1:
                     raise exc
 
+    def get_device_info(self) -> DeviceInfo:
+        profile_name = self.get_profile_name()
+        if profile_name in profiles:
+            max_volume = profiles[profile_name].max_volume
+        else:
+            max_volume = MAX_VOLUME
+
+        return DeviceInfo(
+            profile=profile_name,
+            volume_level=self.get_volume(),
+            subwoofer_level=self.get_subwoofer_level(),
+            max_volume=max_volume,
+        )
+
     def is_powered(self) -> bool:
         resp = self.command("system-power=query")
         return resp[1] == "on"
@@ -71,11 +85,11 @@ class OnkyoProxy:
             return self.power_off()
         else:
             return self.power_on()
-    
+
     def get_volume(self) -> int:
         resp = onkyo.command(f"master-volume=query")
         return resp[1]
-    
+
     def set_volume(self, value: int) -> int:
         resp = onkyo.command(f"master-volume={value}")
         return resp[1]
@@ -87,42 +101,47 @@ class OnkyoProxy:
     def volume_down(self) -> int:
         resp = self.command("master-volume=level-down")
         return resp[1]
-    
+
     def get_subwoofer_level(self) -> int:
         return level_parse(self.raw("SWLQSTN"))
-    
+
     def set_subwoofer_level(self, level) -> int:
         return level_parse(self.raw(f"SWL{level_format(level)}"))
-    
+
     def subwoofer_level_up(self) -> int:
         return level_parse(self.raw("SWLUP"))
-    
+
     def subwoofer_level_down(self) -> int:
         return level_parse(self.raw("SWLDOWN"))
-    
-    def get_input_selector(self) -> str:
-        return ",".join(self.command("input-selector=query")[1])
-    
-    def set_input_selector(self, selector: str) -> str:
-        return ",".join(self.command(f"input-selector={selector}")[1])
-    
-    def get_current_profile(self) -> Optional[Profile]:
-        selector = self.get_input_selector()
-        if profile_name := profile_friendly_name.get(selector):
-            return profiles[profile_name]
-        else:
-            return None
 
-    def set_profile(self, profile_name: str) -> Optional[Profile]:
+    def get_input_selector(self) -> str:
+        resp = self.command("input-selector=query")[1]
+        return ",".join(resp) if isinstance(resp, tuple) else resp
+
+    def set_input_selector(self, selector: str) -> str:
+        resp = self.command(f"input-selector={selector}")[1]
+        return ",".join(resp) if isinstance(resp, tuple) else resp
+
+    def get_profile_name(self) -> str:
+        selector = self.get_input_selector()
+        return profile_friendly_name.get(selector, "unknown")
+
+    def set_profile(self, profile_name: str) -> DeviceInfo:
         if profile_name not in profiles:
             return None
 
         profile = profiles[profile_name]
         self.set_input_selector(profile.selector)
-        self.set_volume(profile.master_volume)
+        self.set_volume(profile.volume_level)
         self.set_subwoofer_level(profile.subwoofer_level)
-        return profile
-    
+
+        return DeviceInfo(
+            profile=profile.name,
+            volume_level=profile.volume_level,
+            subwoofer_level=profile.subwoofer_level,
+            max_volume=profile.max_volume,
+        )
+
 
 app = FastAPI()
 config = Settings()
@@ -149,20 +168,14 @@ def power_switch():
     return {"is_powered": onkyo.switch_power()}
 
 
-@app.get("/profile")
+@app.get("/device")
 def profile_query():
-    profile = onkyo.get_current_profile()
-    if profile is None:
-        return HTTPException(status_code=404, detail="Unknown profile")
-    return profile
+    return onkyo.get_device_info()
 
 
 @app.put("/profile")
 def select_profile(name: str):
-    profile = onkyo.set_profile(name)
-    if profile is None:
-        return HTTPException(status_code=404, detail="Unknown profile")
-    return profile
+    return onkyo.set_profile(name)
 
 
 @app.get("/volume")
@@ -195,7 +208,9 @@ def subwoofer_query():
 @app.put("/subwoofer")
 def subwoofer_set(level: int):
     if not (-8 < level < 8):
-        return HTTPException(status_code=404, detail="Subwoofer level must be between -8 and 8")
+        return HTTPException(
+            status_code=404, detail="Subwoofer level must be between -8 and 8"
+        )
     return {"level": onkyo.set_subwoofer_level(level)}
 
 
