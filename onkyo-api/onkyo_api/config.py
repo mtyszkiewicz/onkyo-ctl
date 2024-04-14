@@ -8,39 +8,40 @@ class Settings(BaseSettings):
 
 
 class Profile(BaseModel):
-    friendly_name: str
-    selector_name: str
+    name: str
+    selector: str
     master_volume: int
-    subwoofer_level: str
+    subwoofer_level: int
+    max_volume: int
 
 
 profiles = {
     "tv": Profile(
-        friendly_name="tv",
-        selector_name="tv",
+        name="tv",
+        selector="tv",
         master_volume=25,
-        subwoofer_level="+00",
+        subwoofer_level=0,
         max_volume=40,
     ),
     "dj": Profile(
-        friendly_name="dj",
-        selector_name="dvd,bd,dvd",
+        name="dj",
+        selector="dvd,bd,dvd",
         master_volume=30,
-        subwoofer_level="-08",
+        subwoofer_level=-8,
         max_volume=40,
     ),
     "vinyl": Profile(
-        friendly_name="vinyl",
-        selector_name="phono",
+        name="vinyl",
+        selector="phono",
         master_volume=25,
-        subwoofer_level="+00",
+        subwoofer_level=0,
         max_volume=40,
     ),
     "spotify": Profile(
-        friendly_name="spotify",
-        selector_name="video2,cbl,sat",
+        name="spotify",
+        selector="video2,cbl,sat",
         master_volume=34,
-        subwoofer_level="-06",
+        subwoofer_level=-6,
         max_volume=40,
     )
 }
