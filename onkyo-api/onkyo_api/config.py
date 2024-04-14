@@ -1,3 +1,4 @@
+from onkyo_api.utils import to_camel
 from pydantic import BaseModel
 from pydantic_settings import BaseSettings
 
@@ -10,37 +11,47 @@ class Settings(BaseSettings):
 class Profile(BaseModel):
     name: str
     selector: str
-    master_volume: int
+    volume_level: int
+    subwoofer_level: int
+    max_volume: int = 50
+
+class DeviceInfo(BaseModel):
+    profile: str
+    volume_level: int
     subwoofer_level: int
     max_volume: int
+
+    class Config:
+        populate_by_name = True
+        alias_generator = to_camel
 
 
 profiles = {
     "tv": Profile(
         name="tv",
         selector="tv",
-        master_volume=25,
+        volume_level=25,
         subwoofer_level=0,
         max_volume=40,
     ),
     "dj": Profile(
         name="dj",
         selector="dvd,bd,dvd",
-        master_volume=30,
+        volume_level=30,
         subwoofer_level=-8,
         max_volume=40,
     ),
     "vinyl": Profile(
         name="vinyl",
         selector="phono",
-        master_volume=25,
+        volume_level=25,
         subwoofer_level=0,
         max_volume=40,
     ),
     "spotify": Profile(
         name="spotify",
         selector="video2,cbl,sat",
-        master_volume=34,
+        volume_level=34,
         subwoofer_level=-6,
         max_volume=40,
     )
