@@ -190,7 +190,7 @@ def volume_set(level: int):
     if level > MAX_VOLUME:
         level = MAX_VOLUME
     # return {"level": onkyo.set_volume(level)}
-    onkyo.set_level(level)
+    onkyo.set_volume(level)
     return onkyo.get_device_info()
 
 
