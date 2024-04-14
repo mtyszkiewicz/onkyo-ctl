@@ -8,6 +8,6 @@ COPY poetry.lock pyproject.toml ./
 
 RUN poetry install
 
-COPY . .
+COPY ./onkyo_api ./onkyo_api
 
-CMD ["poetry", "run", "uvicorn", "onkyo_api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["poetry", "run", "uvicorn", "onkyo_api.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

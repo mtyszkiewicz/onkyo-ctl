@@ -8,8 +8,15 @@ services:
     container_name: onkyo-api
     volumes:
       - onkyo-api-data:/app
+      - onkyo-api-code:/app/onkyo_api
     ports:
       - "0.0.0.0:8001:8000"
 
 volumes:
   onkyo-api-data:
+  onkyo-api-code:
+    driver: local
+    driver_opts:
+      type: overlay2
+      o: bind
+      device: "./onkyo-api/onkyo_api"
