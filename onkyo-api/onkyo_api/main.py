@@ -173,7 +173,7 @@ def volume_query():
 @app.put("/volume")
 def volume_set(level: int):
     if level > MAX_VOLUME:
-        return HTTPException(status_code=404, detail=f"Master volume must be lower than {MAX_VOLUME}")
+        level = MAX_VOLUME
     return {"level": onkyo.set_volume(level)}
 
 
