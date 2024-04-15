@@ -1,7 +1,6 @@
+from onkyo_api.utils import to_camel
 from pydantic import BaseModel
 from pydantic_settings import BaseSettings
-
-from onkyo_api.utils import to_camel
 
 
 class Settings(BaseSettings):

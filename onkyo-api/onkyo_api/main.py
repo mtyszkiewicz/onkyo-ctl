@@ -4,8 +4,8 @@ from time import sleep
 
 import eiscp
 from fastapi import FastAPI, HTTPException
-
-from onkyo_api.config import DeviceInfo, Settings, profile_friendly_name, profiles
+from onkyo_api.config import (DeviceInfo, Settings, profile_friendly_name,
+                              profiles)
 
 MAX_RETRIES = 5
 RETRY_COOLDOWN = 1
@@ -33,26 +33,18 @@ class OnkyoProxy:
             try:
                 with eiscp.eISCP(self.onkyo_host, self.onkyo_port) as receiver:
                     receiver.CONNECT_TIMEOUT = 1
-                    resp = receiver.command(cmd)
+                    if "=" in cmd:
+                        resp = receiver.command(cmd)
+                    else:
+                        resp = receiver.raw(cmd)
                     logger.info(f"Received response {resp} for command {cmd}")
                     return resp
             except ValueError as exc:
                 sleep(0.5)
                 if i == MAX_RETRIES - 1:
                     raise exc
-
-    def raw(self, cmd: str):
-        for i in range(MAX_RETRIES):
-            try:
-                with eiscp.eISCP(self.onkyo_host, self.onkyo_port) as receiver:
-                    receiver.CONNECT_TIMEOUT = 1
-                    resp = receiver.raw(cmd)
-                    logger.info(f"Received response {resp} for command {cmd}")
-                    return resp
-            except ValueError as exc:
-                sleep(0.5)
-                if i == MAX_RETRIES - 1:
-                    raise exc
+            except AssertionError:
+                raise HTTPException(429)
 
     def get_device_info(self) -> DeviceInfo:
         profile_name = self.get_profile_name()
@@ -103,16 +95,16 @@ class OnkyoProxy:
         return resp[1]
 
     def get_subwoofer_level(self) -> int:
-        return level_parse(self.raw("SWLQSTN"))
+        return level_parse(self.command("SWLQSTN"))
 
     def set_subwoofer_level(self, level) -> int:
-        return level_parse(self.raw(f"SWL{level_format(level)}"))
+        return level_parse(self.command(f"SWL{level_format(level)}"))
 
     def subwoofer_level_up(self) -> int:
-        return level_parse(self.raw("SWLUP"))
+        return level_parse(self.command("SWLUP"))
 
     def subwoofer_level_down(self) -> int:
-        return level_parse(self.raw("SWLDOWN"))
+        return level_parse(self.command("SWLDOWN"))
 
     def get_input_selector(self) -> str:
         resp = self.command("input-selector=query")[1]
@@ -189,21 +181,19 @@ def volume_query():
 def volume_set(level: int):
     if level > MAX_VOLUME:
         level = MAX_VOLUME
-    # return {"level": onkyo.set_volume(level)}
     onkyo.set_volume(level)
+
     return onkyo.get_device_info()
 
 
 @app.put("/volume/up")
 def volume_up():
-    # return {"level": onkyo.volume_up()}
     onkyo.volume_up()
     return onkyo.get_device_info()
 
 
 @app.put("/volume/down")
 def volume_down():
-    # return {"level": onkyo.volume_down()}
     onkyo.volume_down()
     return onkyo.get_device_info()
 
@@ -215,20 +205,17 @@ def subwoofer_query():
 
 @app.put("/subwoofer")
 def subwoofer_set(level: int):
-    # return {"level": onkyo.set_subwoofer_level(level)}
     onkyo.set_subwoofer_level(level)
     return onkyo.get_device_info()
 
 
 @app.put("/subwoofer/up")
 def subwoofer_up():
-    # return {"level": onkyo.subwoofer_level_up()}
     onkyo.subwoofer_level_up()
     return onkyo.get_device_info()
 
 
 @app.put("/subwoofer/down")
 def subwoofer_down():
-    # return {"level": onkyo.subwoofer_level_down()}
     onkyo.subwoofer_level_down()
     return onkyo.get_device_info()
