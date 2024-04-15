@@ -24,36 +24,9 @@ struct ProfileButton: View {
         .frame(width: 75, height: 75)
         .cornerRadius(12)
         .buttonStyle(PlainButtonStyle())
-        
-        
     }
 }
 
-//struct ProfileButton: View {
-//    let name: String
-//    let icon: String
-//    let isSelected: Bool
-//    let action: () -> Void
-//
-//    var body: some View {
-//        Button {
-//            Image(systemName: icon)
-//                .font(.title)
-//                .foregroundColor(isSelected ? .white : .primary)
-//            Text(name)
-//                .font(.caption)
-//                .foregroundColor(isSelected ? .white : .secondary)
-//        }
-//        .padding(.horizontal)
-//        .frame(width: 75, height: 75)
-//        .background(isSelected ? Color.accentColor : Color.secondary.opacity(0.2))
-//        .cornerRadius(12)
-//        .contentShape(Rectangle())
-//        .onTapGesture {
-//            action()
-//        }
-//    }
-//}
 
 enum Profile: String, CaseIterable {
     case spotify = "spotify"
@@ -82,32 +55,10 @@ struct ContentView: View {
 
     var body: some View {
         if let deviceInfo = onkyo.deviceInfo {
+            Section(header: Text("")) {
+                EmptyView()
+            }
             VStack(spacing: 10) {
-                Text("Master Volume: \(previousVolumeLevel)")
-                    .focusable(true)
-                    .digitalCrownRotation(
-                        $currentVolumeLevel,
-                        from: 0,
-                        through: Double(deviceInfo.maxVolume),
-                        by: 1,
-                        sensitivity: .low,
-                        isContinuous: false
-                    )
-                    .onChange(of: currentVolumeLevel) { newValue in
-                        let newVolumeLevel = Int(floor(newValue))
-                        if newVolumeLevel != previousVolumeLevel {
-                            previousVolumeLevel = newVolumeLevel
-                            onkyo.volumeSet(level: newVolumeLevel)
-                        }
-                    }
-                    .onChange(of: onkyo.deviceInfo) { newDeviceInfo in
-                        currentVolumeLevel = Double(newDeviceInfo?.volumeLevel ?? 0)
-                    }
-                    .onAppear {
-                        currentVolumeLevel = Double(deviceInfo.volumeLevel)
-                        previousVolumeLevel = deviceInfo.volumeLevel
-                    }
-                
                 VStack(spacing: 10) {
                     HStack(spacing: 10) {
                         ForEach(Profile.allCases.prefix(2), id: \.self) { profile in
@@ -134,6 +85,32 @@ struct ContentView: View {
                         }
                     }
                 }
+                Text("Master Volume: \(previousVolumeLevel)")
+                    .focusable(true)
+                    .font(.footnote)
+                    .foregroundColor(Color.secondary.opacity(0.5))
+                    .digitalCrownRotation(
+                        $currentVolumeLevel,
+                        from: 0,
+                        through: Double(deviceInfo.maxVolume),
+                        by: 1,
+                        sensitivity: .low,
+                        isContinuous: false
+                    )
+                    .onChange(of: currentVolumeLevel) { newValue in
+                        let newVolumeLevel = Int(floor(newValue))
+                        if newVolumeLevel != previousVolumeLevel {
+                            previousVolumeLevel = newVolumeLevel
+                            onkyo.volumeSet(level: newVolumeLevel)
+                        }
+                    }
+                    .onChange(of: onkyo.deviceInfo) { newDeviceInfo in
+                        currentVolumeLevel = Double(newDeviceInfo?.volumeLevel ?? 0)
+                    }
+                    .onAppear {
+                        currentVolumeLevel = Double(deviceInfo.volumeLevel)
+                        previousVolumeLevel = deviceInfo.volumeLevel
+                    }
             }
             .padding()
         } else if onkyo.isDeviceInfoFetched {
