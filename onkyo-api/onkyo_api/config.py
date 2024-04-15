@@ -1,6 +1,7 @@
-from onkyo_api.utils import to_camel
 from pydantic import BaseModel
 from pydantic_settings import BaseSettings
+
+from onkyo_api.utils import to_camel
 
 
 class Settings(BaseSettings):
@@ -39,7 +40,7 @@ profiles = {
         selector="dvd,bd,dvd",
         volume_level=30,
         subwoofer_level=-8,
-        max_volume=40,
+        max_volume=35,
     ),
     "vinyl": Profile(
         name="vinyl",
