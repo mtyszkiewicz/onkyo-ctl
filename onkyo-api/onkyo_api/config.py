@@ -31,30 +31,30 @@ profiles = {
     "tv": Profile(
         name="tv",
         selector="tv",
-        volume_level=25,
+        volume_level=20,
         subwoofer_level=0,
-        max_volume=40,
+        max_volume=28,
     ),
     "dj": Profile(
         name="dj",
         selector="dvd,bd,dvd",
-        volume_level=30,
+        volume_level=27,
         subwoofer_level=-8,
         max_volume=35,
     ),
     "vinyl": Profile(
         name="vinyl",
         selector="phono",
-        volume_level=25,
+        volume_level=20,
         subwoofer_level=0,
-        max_volume=40,
+        max_volume=30,
     ),
     "spotify": Profile(
         name="spotify",
         selector="video2,cbl,sat",
-        volume_level=34,
+        volume_level=38,
         subwoofer_level=-6,
-        max_volume=40,
+        max_volume=50,
     )
 }
 
