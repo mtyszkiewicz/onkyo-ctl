@@ -1,67 +1,146 @@
 import SwiftUI
 
+struct ProfileButton: View {
+    let name: String
+    let icon: String
+    let isSelected: Bool
+    let action: () -> Void
 
+    var body: some View {
+        Button(action: action) {
+            VStack {
+                Image(systemName: icon)
+                    .font(.title)
+                    .foregroundColor(isSelected ? .white : .primary)
+                Text(name)
+                    .font(.caption)
+                    .foregroundColor(isSelected ? .white : .secondary)
+            }
+            .padding(.horizontal)
+            .frame(width: 75, height: 75)
+            .background(isSelected ? Color.accentColor : Color.secondary.opacity(0.2))
+        }
+        .padding(.horizontal)
+        .frame(width: 75, height: 75)
+        .cornerRadius(12)
+        .buttonStyle(PlainButtonStyle())
+        
+        
+    }
+}
+
+//struct ProfileButton: View {
+//    let name: String
+//    let icon: String
+//    let isSelected: Bool
+//    let action: () -> Void
+//
+//    var body: some View {
+//        Button {
+//            Image(systemName: icon)
+//                .font(.title)
+//                .foregroundColor(isSelected ? .white : .primary)
+//            Text(name)
+//                .font(.caption)
+//                .foregroundColor(isSelected ? .white : .secondary)
+//        }
+//        .padding(.horizontal)
+//        .frame(width: 75, height: 75)
+//        .background(isSelected ? Color.accentColor : Color.secondary.opacity(0.2))
+//        .cornerRadius(12)
+//        .contentShape(Rectangle())
+//        .onTapGesture {
+//            action()
+//        }
+//    }
+//}
+
+enum Profile: String, CaseIterable {
+    case spotify = "spotify"
+    case tv = "tv"
+    case vinyl = "vinyl"
+    case dj = "dj"
+
+    var icon: String {
+        switch self {
+        case .spotify:
+            return "music.note"
+        case .tv:
+            return "tv"
+        case .vinyl:
+            return "circle.circle"
+        case .dj:
+            return "music.mic"
+        }
+    }
+}
 
 struct ContentView: View {
-    var onkyo = OnkyoController(apiBaseUrl: "http://10.205.0.5:8001")
-    
+    @StateObject var onkyo = OnkyoController(apiBaseUrl: "http://10.205.0.5:8001")
+    @State private var currentVolumeLevel: Double = 10.0
+    @State private var previousVolumeLevel: Int = 10
+
     var body: some View {
-        VStack(spacing: 10) {
-            // First row
-            HStack(spacing: 10) {
-                Button(action: {
-                    onkyo.selectProfile(name: "spotify")
-                    print("Music button tapped")
-                }) {
-                    Text("Music")
-                        .padding()
-                        .frame(width: 80, height: 65)
-                        .background(Color.gray)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                }
+        if let deviceInfo = onkyo.deviceInfo {
+            VStack(spacing: 10) {
+                Text("Master Volume: \(previousVolumeLevel)")
+                    .focusable(true)
+                    .digitalCrownRotation(
+                        $currentVolumeLevel,
+                        from: 0,
+                        through: Double(deviceInfo.maxVolume),
+                        by: 1,
+                        sensitivity: .low,
+                        isContinuous: false
+                    )
+                    .onChange(of: currentVolumeLevel) { newValue in
+                        let newVolumeLevel = Int(floor(newValue))
+                        if newVolumeLevel != previousVolumeLevel {
+                            previousVolumeLevel = newVolumeLevel
+                            onkyo.volumeSet(level: newVolumeLevel)
+                        }
+                    }
+                    .onChange(of: onkyo.deviceInfo) { newDeviceInfo in
+                        currentVolumeLevel = Double(newDeviceInfo?.volumeLevel ?? 0)
+                    }
+                    .onAppear {
+                        currentVolumeLevel = Double(deviceInfo.volumeLevel)
+                        previousVolumeLevel = deviceInfo.volumeLevel
+                    }
                 
-                Button(action: {
-                    onkyo.selectProfile(name: "tv")
-                    print("TV button tapped")
-                }) {
-                    Text("TV")
-                        .padding()
-                        .frame(width: 80, height: 65)
-                        .background(Color.gray)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
+                VStack(spacing: 10) {
+                    HStack(spacing: 10) {
+                        ForEach(Profile.allCases.prefix(2), id: \.self) { profile in
+                            ProfileButton(
+                                name: profile.rawValue.capitalized,
+                                icon: profile.icon,
+                                isSelected: deviceInfo.profile == profile.rawValue
+                            ) {
+                                onkyo.selectProfile(name: profile.rawValue)
+                                print("\(profile.rawValue) button tapped")
+                            }
+                        }
+                    }
+                    HStack(spacing: 10) {
+                        ForEach(Profile.allCases.dropFirst(2), id: \.self) { profile in
+                            ProfileButton(
+                                name: profile.rawValue.capitalized,
+                                icon: profile.icon,
+                                isSelected: deviceInfo.profile == profile.rawValue
+                            ) {
+                                onkyo.selectProfile(name: profile.rawValue)
+                                print("\(profile.rawValue) button tapped")
+                            }
+                        }
+                    }
                 }
             }
-            
-            // Second row
-            HStack(spacing: 10) {
-                Button(action: {
-                    onkyo.selectProfile(name: "vinyl")
-                    print("Vinyl button tapped")
-                }) {
-                    Text("Vinyl")
-                        .padding()
-                        .frame(width: 80, height: 65)
-                        .background(Color.gray)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                }
-                
-                Button(action: {
-                    onkyo.selectProfile(name: "dj")
-                    print("DJ button tapped")
-                }) {
-                    Text("DJ")
-                        .padding()
-                        .frame(width: 80, height: 65)
-                        .background(Color.gray)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                }
-            }
+            .padding()
+        } else if onkyo.isDeviceInfoFetched {
+            Text("Failed to fetch device information.")
+        } else {
+            ProgressView("Loading device information...")
         }
-        .padding()
     }
 }
 
