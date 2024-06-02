@@ -1,13 +1,13 @@
-FROM python:3.11
+FROM golang:1.21.10-alpine3.20
 
 WORKDIR /app
 
-RUN pip install poetry
+COPY . /app
 
-COPY poetry.lock pyproject.toml ./
+RUN go mod download
 
-RUN poetry install
+RUN go build -o main .
 
-COPY ./onkyo_api ./onkyo_api
+EXPOSE 8080
 
-CMD ["poetry", "run", "uvicorn", "onkyo_api.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+CMD ["/app/main"]
