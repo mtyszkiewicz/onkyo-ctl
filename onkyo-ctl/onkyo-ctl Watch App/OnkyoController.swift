@@ -38,6 +38,25 @@ class OnkyoController: ObservableObject {
         sendRequestNoResponse(request: request)
     }
     
+    func powerOn() {
+        var request = URLRequest(url: URL(string: "\(self.apiBaseUrl)/power/on")!)
+        request.httpMethod = "PUT"
+        sendRequestNoResponse(request: request)
+    }
+    
+    func powerOff() {
+        var request = URLRequest(url: URL(string: "\(self.apiBaseUrl)/power/off")!)
+        request.httpMethod = "PUT"
+        sendRequestNoResponse(request: request)
+    }
+    
+    
+    func subwooferLevelSet(level: Int) {
+        var request = URLRequest(url: URL(string: "\(self.apiBaseUrl)/subwoofer?level=\(level)")!)
+        request.httpMethod = "PUT"
+        sendRequestNoResponse(request: request)
+    }
+    
     func sendRequestNoResponse(request: URLRequest) {
         URLSession.shared.dataTask(with: request) { _, _, error in
             if let error = error {

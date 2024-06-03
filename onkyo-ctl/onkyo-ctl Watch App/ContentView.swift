@@ -52,9 +52,11 @@ struct ContentView: View {
     @StateObject var onkyo = OnkyoController(apiBaseUrl: "http://10.205.0.5:8001")
     @State private var currentVolumeLevel: Double = 10.0
     @State private var previousVolumeLevel: Int = 10
+    @State private var poweredOn: Bool = true
+    @State private var subwooferLevel = 0
 
     var body: some View {
-        Group {
+        TabView{
             if onkyo.requestTimeout {
                 VStack(spacing: 20) {
                     Text("There is no need for this app to work outdoors :)")
@@ -83,9 +85,54 @@ struct ContentView: View {
             } else {
                 ProgressView("")
             }
+            if let _ = onkyo.deviceInfo {
+                configView()
+            }
+        }
+    }
+    
+    private func configView() -> some View {
+        Form {
+            Section() {
+                Toggle("Power", isOn: $poweredOn)
+                    .onChange(of: poweredOn) {
+                        if poweredOn {
+                            onkyo.powerOn()
+                        } else {
+                            onkyo.powerOff()
+                        }
+                    }
+                Button("Bass level +1") {
+                    if subwooferLevel < 8 {
+                        subwooferLevel += 1
+                        onkyo.subwooferLevelSet(level: subwooferLevel)
+                    }
+                }
+                Button("Bass level -1") {
+                    if subwooferLevel > -8 {
+                        subwooferLevel -= 1
+                        onkyo.subwooferLevelSet(level: subwooferLevel)
+                    }
+                }
+            }
+        }
+    }
+    
+    private func loadingScreen() -> some View {
+        Group {
+            
         }
         .padding()
     }
+    
+//    deviceContent(
+//        DeviceInfo(
+//            profile: "spotify",
+//            volumeLevel: 30,
+//            subwooferLevel: 0,
+//            maxVolume: 40
+//        )
+//    )
     
     private func reloadDeviceInfo() {
         onkyo.requestTimeout = false
