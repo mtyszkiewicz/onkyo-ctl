@@ -6,7 +6,7 @@ COPY . /app
 
 RUN go mod download
 
-RUN go build -o main .
+RUN go build -o main ./internal/
 
 EXPOSE 8080
 
