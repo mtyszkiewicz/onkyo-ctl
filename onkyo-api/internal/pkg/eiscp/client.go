@@ -89,6 +89,14 @@ func (c *EISCPClient) PowerOff() error {
 	return c.sendCommand("PWR00")
 }
 
+func (c *EISCPClient) VolumeUp() error {
+	return c.sendCommand("MVLUP")
+}
+
+func (c *EISCPClient) VolumeDown() error {
+	return c.sendCommand("MVLDOWN")
+}
+
 func (c *EISCPClient) SetMasterVolume(level int) error {
 	if level < 0 || level > 50 {
 		return fmt.Errorf("invalid volume level: %d, must be between 0 and 50", level)
