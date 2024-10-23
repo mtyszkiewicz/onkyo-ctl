@@ -70,6 +70,8 @@ func (s *Server) Routes() chi.Router {
 	r.Route("/volume", func(r chi.Router) {
 		r.Get("/", s.getVolume)
 		r.Put("/", s.setVolume)
+		r.Put("/up", s.volumeUp)
+		r.Put("/down", s.volumeDown)
 	})
 
 	r.Route("/subwoofer", func(r chi.Router) {
@@ -119,6 +121,24 @@ func (s *Server) getVolume(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Write([]byte(fmt.Sprintf("Volume level: %d", volume)))
+}
+
+func (s *Server) volumeUp(w http.ResponseWriter, r *http.Request) {
+	err := s.client.VolumeUp()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Write([]byte("Volume level: Up"))
+}
+
+func (s *Server) volumeDown(w http.ResponseWriter, r *http.Request) {
+	err := s.client.VolumeDown()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Write([]byte("Volume level: Down"))
 }
 
 func (s *Server) setVolume(w http.ResponseWriter, r *http.Request) {
