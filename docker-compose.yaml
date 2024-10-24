@@ -9,6 +9,9 @@ services:
       - "30"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - ~/.docker/config.json:/config.json
+    environment:
+      - DOCKER_CONFIG=/
   onkyo-api:
     image: ghcr.io/mtyszkiewicz/onkyo-api
     labels:
