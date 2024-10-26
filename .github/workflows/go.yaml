@@ -1,0 +1,58 @@
+name: Go
+on:
+  push:
+    branches:
+      - 'main'
+    # paths:
+    #   - 'onkyo-api/**'
+
+permissions:
+  packages: write
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./onkyo-api
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22.x'
+      - name: Install dependencies
+        run: go get .
+      - name: Build
+        run: go build -v ./...
+      - name: Test with the Go CLI
+        run: go test
+
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./onkyo-api
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set short git commit SHA
+        id: vars
+        run: |
+          calculatedSha=$(git rev-parse --short ${{ github.sha }})
+          echo "COMMIT_SHORT_SHA=$calculatedSha" >> $GITHUB_ENV
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
+        with:
+          registry: https://ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@0565240e2d4ab88bba5387d719585280857ece09 # v5.0.0
+        with:
+          context: ./onkyo-api
+          push: true
+          tags: ghcr.io/mtyszkiewicz/onkyo-api
