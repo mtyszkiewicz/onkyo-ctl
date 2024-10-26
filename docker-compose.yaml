@@ -1,8 +1,7 @@
-version: "3.9"
-
 services:
   watchtower:
     image: containrrr/watchtower
+    container_name: onkyo-api-watchtower
     command:
       - "--label-enable"
       - "--interval"
@@ -14,6 +13,7 @@ services:
       - DOCKER_CONFIG=/
   onkyo-api:
     image: ghcr.io/mtyszkiewicz/onkyo-api
+    container_name: onkyo-api
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
     restart: always
