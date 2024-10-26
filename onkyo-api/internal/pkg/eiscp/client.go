@@ -23,12 +23,12 @@ func NewEISCPClient(host, port string) (*EISCPClient, error) {
 		Conn:          conn,
 		responseQueue: make(chan string, 100),
 	}
-	go client.readResponses()
+	go client.listen()
 	return client, nil
 }
 
 // Constatnly puts incoming data into responseQueue
-func (c *EISCPClient) readResponses() {
+func (c *EISCPClient) listen() {
 	buf := make([]byte, 1024)
 	for {
 		n, err := c.Conn.Read(buf)
@@ -128,7 +128,7 @@ func (c *EISCPClient) SetInputSelector(input string) error {
 	return c.sendCommand("SLI" + code)
 }
 
-func (c *EISCPClient) QueryCurrentInput() (string, error) {
+func (c *EISCPClient) QueryInputSelector() (string, error) {
 	response, err := c.sendReceiveCommand("SLIQSTN")
 	if err != nil {
 		return "", err
@@ -144,7 +144,7 @@ func (c *EISCPClient) QueryCurrentInput() (string, error) {
 	return name, nil
 }
 
-func (c *EISCPClient) QueryCurrentVolume() (int, error) {
+func (c *EISCPClient) QueryVolume() (int, error) {
 	response, err := c.sendReceiveCommand("MVLQSTN")
 	if err != nil {
 		return 0, err
@@ -160,7 +160,7 @@ func (c *EISCPClient) QueryCurrentVolume() (int, error) {
 	return int(result), nil
 }
 
-func (c *EISCPClient) QueryCurrentSubwooferLevel() (int, error) {
+func (c *EISCPClient) QuerySubwooferLevel() (int, error) {
 	response, err := c.sendReceiveCommand("SWLQSTN")
 	if err != nil {
 		return 0, err

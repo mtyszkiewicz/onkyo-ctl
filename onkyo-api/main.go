@@ -115,7 +115,7 @@ func (s *Server) powerOff(w http.ResponseWriter, r *http.Request) {
 
 // Volume handlers
 func (s *Server) getVolume(w http.ResponseWriter, r *http.Request) {
-	volume, err := s.client.QueryCurrentVolume()
+	volume, err := s.client.QueryVolume()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -161,7 +161,7 @@ func (s *Server) setVolume(w http.ResponseWriter, r *http.Request) {
 
 // Subwoofer handlers
 func (s *Server) getSubwoofer(w http.ResponseWriter, r *http.Request) {
-	subwoofer, err := s.client.QueryCurrentSubwooferLevel()
+	subwoofer, err := s.client.QuerySubwooferLevel()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -189,7 +189,7 @@ func (s *Server) setSubwoofer(w http.ResponseWriter, r *http.Request) {
 
 // Input handlers
 func (s *Server) getInput(w http.ResponseWriter, r *http.Request) {
-	input, err := s.client.QueryCurrentInput()
+	input, err := s.client.QueryInputSelector()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -212,17 +212,17 @@ func (s *Server) setInput(w http.ResponseWriter, r *http.Request) {
 
 // Profile handlers
 func (s *Server) getProfile(w http.ResponseWriter, r *http.Request) {
-	currentInput, err := s.client.QueryCurrentInput()
+	currentInput, err := s.client.QueryInputSelector()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	currentVolume, err := s.client.QueryCurrentVolume()
+	currentVolume, err := s.client.QueryVolume()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	currentSubwoofer, err := s.client.QueryCurrentSubwooferLevel()
+	currentSubwoofer, err := s.client.QuerySubwooferLevel()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
