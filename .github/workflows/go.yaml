@@ -22,7 +22,7 @@ jobs:
         with:
           go-version: '1.22.x'
       - name: Install dependencies
-        run: go get ./cmd/api/main.go
+        run: go get .
       - name: Build
         run: go build -v ./cmd/api/main.go
       - name: Test with the Go CLI
