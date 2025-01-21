@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./onkyo-api
+        working-directory: ./onkyo-ctl
     steps:
       - uses: actions/checkout@v4
       - name: Setup Go
@@ -24,7 +24,7 @@ jobs:
       - name: Install dependencies
         run: go get .
       - name: Build
-        run: go build -v ./...
+        run: go build -v ./cmd/api/main.go
       - name: Test with the Go CLI
         run: go test
 
