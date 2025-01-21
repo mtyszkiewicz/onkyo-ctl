@@ -17,16 +17,20 @@ jobs:
         working-directory: ./onkyo-ctl
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
           go-version: '1.22.x'
+
       - name: Install dependencies
-        run: go get .
+        run: go mod tidy
+
       - name: Build
         run: go build -v ./cmd/api/main.go
+
       - name: Test with the Go CLI
-        run: go test
+        run: go test ./...
 
   build-and-push-image:
     runs-on: ubuntu-latest
@@ -44,15 +48,15 @@ jobs:
           echo "COMMIT_SHORT_SHA=$calculatedSha" >> $GITHUB_ENV
 
       - name: Log in to the Container registry
-        uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
+        uses: docker/login-action@v3
         with:
           registry: https://ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@0565240e2d4ab88bba5387d719585280857ece09 # v5.0.0
+        uses: docker/build-push-action@v5
         with:
           context: ./onkyo-ctl
           push: true
-          tags: ghcr.io/mtyszkiewicz/onkyo-api
+          tags: ghcr.io/mtyszkiewicz/onkyo-api:${{ env.COMMIT_SHORT_SHA }}
