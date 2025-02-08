@@ -165,7 +165,9 @@ func (c *EISCPClient) QuerySubwooferLevel() (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	result, err := strconv.Atoi(strings.TrimPrefix(response, "SWL"))
+	response = strings.TrimPrefix(response, "SWL")
+	response = strings.TrimSuffix(response, "C")
+	result, err := strconv.Atoi(response)
 	if err != nil {
 		return 0, err
 	}
