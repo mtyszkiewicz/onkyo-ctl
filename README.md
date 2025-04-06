@@ -1,18 +1,18 @@
 # Onkyo Controller
 
-Apple watch as a physical interface to my Onkyo TX-L20D amplituner.  
+Highly optimized onkyo eiscp protocol implementation for TX-L20D model with minimal set of features.
 
 ![showcase](./assets/showcase.gif)
 
 ## Features
- - Turning the AV receiver on/off
- - Volume and bass level control via digital crown (satisfying haptic feedback)
- - Switching between profiles (presets of audio source, default volume, default bass level, max volume)
+- Power on/off control
+- Volume and bass adjustment via digital crown
+- Profile switching (audio source, volume settings, bass presets)
 
-## How it works?
-
-A simple go program implements onkyo-eiscp protocol and serves JSON-based API for the watch app.
+## Implementation
+Go-based server implementing the onkyo-eiscp protocol with:
+- CLI interface for scripts and automation
+- JSON API for the Apple Watch app and Apple Shortcuts
 
 ## Acknowledgments
-
-Special thanks to [onkyo-eiscp](https://github.com/miracle2k/onkyo-eiscp) for sharing the protocol details.
+Based on amazing work from [onkyo-eiscp](https://github.com/miracle2k/onkyo-eiscp)
