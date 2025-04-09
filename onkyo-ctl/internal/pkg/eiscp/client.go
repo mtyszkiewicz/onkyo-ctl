@@ -41,7 +41,7 @@ func (c *EISCPClient) listen() {
 }
 
 // Sends ISCP message and returns without awaiting the response
-func (c *EISCPClient) sendCommand(msg string) error {
+func (c *EISCPClient) SendCommand(msg string) error {
 	// Clear the response queue
 	for len(c.responseQueue) > 0 {
 		<-c.responseQueue
@@ -53,8 +53,8 @@ func (c *EISCPClient) sendCommand(msg string) error {
 }
 
 // Sends ISCP message and waits for response
-func (c *EISCPClient) sendReceiveCommand(command string) (string, error) {
-	err := c.sendCommand(command)
+func (c *EISCPClient) SendReceiveCommand(command string) (string, error) {
+	err := c.SendCommand(command)
 	if err != nil {
 		return "", err
 	}
@@ -82,19 +82,19 @@ var inputNames = map[string]string{
 }
 
 func (c *EISCPClient) PowerOn() error {
-	return c.sendCommand("PWR01")
+	return c.SendCommand("PWR01")
 }
 
 func (c *EISCPClient) PowerOff() error {
-	return c.sendCommand("PWR00")
+	return c.SendCommand("PWR00")
 }
 
 func (c *EISCPClient) VolumeUp() error {
-	return c.sendCommand("MVLUP")
+	return c.SendCommand("MVLUP")
 }
 
 func (c *EISCPClient) VolumeDown() error {
-	return c.sendCommand("MVLDOWN")
+	return c.SendCommand("MVLDOWN")
 }
 
 func (c *EISCPClient) SetMasterVolume(level int) error {
@@ -102,7 +102,7 @@ func (c *EISCPClient) SetMasterVolume(level int) error {
 		return fmt.Errorf("invalid volume level: %d, must be between 0 and 50", level)
 	}
 	hexLevel := fmt.Sprintf("%02X", level)
-	return c.sendCommand("MVL" + hexLevel)
+	return c.SendCommand("MVL" + hexLevel)
 }
 
 func (c *EISCPClient) SetSubwooferLevel(level int) error {
@@ -117,7 +117,7 @@ func (c *EISCPClient) SetSubwooferLevel(level int) error {
 		command = fmt.Sprintf("SWL-%02d", -level)
 	}
 
-	return c.sendCommand(command)
+	return c.SendCommand(command)
 }
 
 func (c *EISCPClient) SetInputSelector(input string) error {
@@ -125,11 +125,11 @@ func (c *EISCPClient) SetInputSelector(input string) error {
 	if !ok {
 		return fmt.Errorf("invalid input selector: %s", input)
 	}
-	return c.sendCommand("SLI" + code)
+	return c.SendCommand("SLI" + code)
 }
 
 func (c *EISCPClient) QueryInputSelector() (string, error) {
-	response, err := c.sendReceiveCommand("SLIQSTN")
+	response, err := c.SendReceiveCommand("SLIQSTN")
 	if err != nil {
 		return "", err
 	}
@@ -145,7 +145,7 @@ func (c *EISCPClient) QueryInputSelector() (string, error) {
 }
 
 func (c *EISCPClient) QueryVolume() (int, error) {
-	response, err := c.sendReceiveCommand("MVLQSTN")
+	response, err := c.SendReceiveCommand("MVLQSTN")
 	if err != nil {
 		return 0, err
 	}
@@ -161,7 +161,7 @@ func (c *EISCPClient) QueryVolume() (int, error) {
 }
 
 func (c *EISCPClient) QuerySubwooferLevel() (int, error) {
-	response, err := c.sendReceiveCommand("SWLQSTN")
+	response, err := c.SendReceiveCommand("SWLQSTN")
 	if err != nil {
 		return 0, err
 	}
