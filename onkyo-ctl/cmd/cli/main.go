@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/mtyszkiewicz/eiscp/internal/pkg/eiscp"
 	"github.com/urfave/cli/v3"
@@ -145,7 +146,7 @@ func main() {
 				},
 			},
 			{
-				Name:  "input",
+				Name:  "source",
 				Usage: "Control input source",
 				Commands: []*cli.Command{
 					{
@@ -153,19 +154,46 @@ func main() {
 						Usage: "Query current input source",
 						Action: func(ctx context.Context, cmd *cli.Command) error {
 							result, err := client.QueryInputSelector()
-							fmt.Printf(result)
-							return err
+							if err != nil {
+								return err
+							}
+							fmt.Println(result)
+							return nil
 						},
 					},
 					{
 						Name:  "set",
-						Usage: "Set input source",
+						Usage: "Set input source (tv, spotify, dj, vinyl)",
 						Action: func(ctx context.Context, cmd *cli.Command) error {
 							if cmd.Args().Len() != 1 {
-								return fmt.Errorf("usage: input set <source>")
+								return fmt.Errorf("usage: source set <source>")
 							}
-							source := cmd.Args().First()
+
+							source := strings.ToLower(cmd.Args().First())
+							validSources := map[string]bool{
+								"tv":      true,
+								"spotify": true,
+								"dj":      true,
+								"vinyl":   true,
+							}
+
+							if !validSources[source] {
+								return fmt.Errorf("invalid source '%s'. Available sources: tv, spotify, dj, vinyl", source)
+							}
+
 							return client.SetInputSelector(source)
+						},
+					},
+					{
+						Name:  "list",
+						Usage: "List available input sources",
+						Action: func(ctx context.Context, cmd *cli.Command) error {
+							fmt.Println("Available sources:")
+							fmt.Println("  - tv")
+							fmt.Println("  - spotify")
+							fmt.Println("  - dj")
+							fmt.Println("  - vinyl")
+							return nil
 						},
 					},
 				},
