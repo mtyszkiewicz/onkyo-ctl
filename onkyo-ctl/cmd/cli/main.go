@@ -54,6 +54,13 @@ func main() {
 		EnableShellCompletion: true,
 		Commands: []*cli.Command{
 			{
+				Name:  "chat",
+				Usage: "Chat with onkyo using raw eiscp messages",
+				Action: func(ctx context.Context, cmd *cli.Command) error {
+					return StartChatSession(client)
+				},
+			},
+			{
 				Name:  "power",
 				Usage: "Control device power",
 				Commands: []*cli.Command{
