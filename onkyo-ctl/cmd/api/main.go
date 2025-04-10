@@ -57,6 +57,8 @@ func (s *Server) Routes() chi.Router {
 	r.Route("/subwoofer", func(r chi.Router) {
 		r.Get("/", s.getSubwoofer)
 		r.Put("/", s.setSubwoofer)
+		r.Put("/up", s.subwooferUp)
+		r.Put("/down", s.subwooferDown)
 	})
 
 	r.Route("/input", func(r chi.Router) {
@@ -183,6 +185,22 @@ func (s *Server) setSubwoofer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Fprintf(w, "Subwoofer level set to %d", level)
+}
+
+func (s *Server) subwooferUp(w http.ResponseWriter, r *http.Request) {
+	if err := s.client.SubwooferUp(); err != nil {
+		handleError(w, err)
+		return
+	}
+	fmt.Fprint(w, "Subwoofer level: Up")
+}
+
+func (s *Server) subwooferDown(w http.ResponseWriter, r *http.Request) {
+	if err := s.client.SubwooferDown(); err != nil {
+		handleError(w, err)
+		return
+	}
+	fmt.Fprint(w, "Subwoofer level: Down")
 }
 
 // Input handlers
