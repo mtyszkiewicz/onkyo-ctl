@@ -114,7 +114,7 @@ func (c *EISCPClient) SubwooferUp() error {
 }
 
 func (c *EISCPClient) SubwooferDown() error {
-	return c.SendCommand("SWLDown")
+	return c.SendCommand("SWLDOWN")
 }
 
 func (c *EISCPClient) SetMasterVolume(level int) error {
