@@ -2,7 +2,9 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -27,39 +29,17 @@ func NewServer(client *eiscp.EISCPClient) *Server {
 	return &Server{
 		client: client,
 		profiles: map[string]Profile{
-			"tv": {
-				Name:           "tv",
-				VolumeLevel:    20,
-				SubwooferLevel: 0,
-				MaxVolume:      28,
-			},
-			"dj": {
-				Name:           "dj",
-				VolumeLevel:    27,
-				SubwooferLevel: -8,
-				MaxVolume:      35,
-			},
-			"vinyl": {
-				Name:           "vinyl",
-				VolumeLevel:    20,
-				SubwooferLevel: 0,
-				MaxVolume:      30,
-			},
-			"spotify": {
-				Name:           "spotify",
-				VolumeLevel:    38,
-				SubwooferLevel: -6,
-				MaxVolume:      50,
-			},
+			"tv":      {Name: "tv", VolumeLevel: 20, SubwooferLevel: 0, MaxVolume: 28},
+			"dj":      {Name: "dj", VolumeLevel: 27, SubwooferLevel: -8, MaxVolume: 35},
+			"vinyl":   {Name: "vinyl", VolumeLevel: 20, SubwooferLevel: 0, MaxVolume: 30},
+			"spotify": {Name: "spotify", VolumeLevel: 38, SubwooferLevel: -6, MaxVolume: 50},
 		},
 	}
 }
 
 func (s *Server) Routes() chi.Router {
 	r := chi.NewRouter()
-
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
+	r.Use(middleware.Logger, middleware.Recoverer)
 
 	r.Route("/power", func(r chi.Router) {
 		r.Get("/", s.getPowerStatus)
@@ -92,145 +72,172 @@ func (s *Server) Routes() chi.Router {
 	return r
 }
 
+// Helper function to handle errors based on type
+func handleError(w http.ResponseWriter, err error) {
+	switch {
+	case errors.Is(err, eiscp.ErrValidation):
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	case errors.Is(err, eiscp.ErrTimeout):
+		http.Error(w, err.Error(), http.StatusGatewayTimeout)
+	case errors.Is(err, eiscp.ErrConnection), errors.Is(err, eiscp.ErrTransport):
+		http.Error(w, err.Error(), http.StatusServiceUnavailable)
+	default:
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
 // Power handlers
 func (s *Server) getPowerStatus(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Power status: on"))
+	fmt.Fprint(w, "Power status: on")
 }
 
 func (s *Server) powerOn(w http.ResponseWriter, r *http.Request) {
 	if err := s.client.PowerOn(); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		handleError(w, err)
 		return
 	}
-	w.Write([]byte("Power turned on"))
+	fmt.Fprint(w, "Power turned on")
 }
 
 func (s *Server) powerOff(w http.ResponseWriter, r *http.Request) {
 	if err := s.client.PowerOff(); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		handleError(w, err)
 		return
 	}
-	w.Write([]byte("Power turned off"))
+	fmt.Fprint(w, "Power turned off")
 }
 
 // Volume handlers
 func (s *Server) getVolume(w http.ResponseWriter, r *http.Request) {
 	volume, err := s.client.QueryVolume()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		handleError(w, err)
 		return
 	}
-	w.Write([]byte(fmt.Sprintf("Volume level: %d", volume)))
+	fmt.Fprintf(w, "Volume level: %d", volume)
 }
 
 func (s *Server) volumeUp(w http.ResponseWriter, r *http.Request) {
-	err := s.client.VolumeUp()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	if err := s.client.VolumeUp(); err != nil {
+		handleError(w, err)
 		return
 	}
-	w.Write([]byte("Volume level: Up"))
+	fmt.Fprint(w, "Volume level: Up")
 }
 
 func (s *Server) volumeDown(w http.ResponseWriter, r *http.Request) {
-	err := s.client.VolumeDown()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	if err := s.client.VolumeDown(); err != nil {
+		handleError(w, err)
 		return
 	}
-	w.Write([]byte("Volume level: Down"))
+	fmt.Fprint(w, "Volume level: Down")
 }
 
 func (s *Server) setVolume(w http.ResponseWriter, r *http.Request) {
 	levelStr := r.URL.Query().Get("level")
 	level, err := strconv.Atoi(levelStr)
-	if err != nil || level < 0 || level > 50 {
-		http.Error(w, "Invalid volume level", http.StatusBadRequest)
+	if err != nil {
+		handleError(w, fmt.Errorf("%w: invalid volume level format", eiscp.ErrValidation))
 		return
 	}
+
 	if err := s.client.PowerOn(); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		handleError(w, err)
 		return
 	}
+
 	if err := s.client.SetMasterVolume(level); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		handleError(w, err)
 		return
 	}
-	w.Write([]byte(fmt.Sprintf("Volume set to %d", level)))
+
+	fmt.Fprintf(w, "Volume set to %d", level)
 }
 
 // Subwoofer handlers
 func (s *Server) getSubwoofer(w http.ResponseWriter, r *http.Request) {
-	subwoofer, err := s.client.QuerySubwooferLevel()
+	level, err := s.client.QuerySubwooferLevel()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		handleError(w, err)
 		return
 	}
-	w.Write([]byte(fmt.Sprintf("Subwoofer level: %d", subwoofer)))
+	fmt.Fprintf(w, "Subwoofer level: %d", level)
 }
 
 func (s *Server) setSubwoofer(w http.ResponseWriter, r *http.Request) {
 	levelStr := r.URL.Query().Get("level")
 	level, err := strconv.Atoi(levelStr)
-	if err != nil || level < -8 || level > 8 {
-		http.Error(w, "Invalid subwoofer level", http.StatusBadRequest)
+	if err != nil {
+		handleError(w, fmt.Errorf("%w: invalid subwoofer level format", eiscp.ErrValidation))
 		return
 	}
+
 	if err := s.client.PowerOn(); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		handleError(w, err)
 		return
 	}
+
 	if err := s.client.SetSubwooferLevel(level); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		handleError(w, err)
 		return
 	}
-	w.Write([]byte(fmt.Sprintf("Subwoofer level set to %d", level)))
+
+	fmt.Fprintf(w, "Subwoofer level set to %d", level)
 }
 
 // Input handlers
 func (s *Server) getInput(w http.ResponseWriter, r *http.Request) {
 	input, err := s.client.QueryInputSelector()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		handleError(w, err)
 		return
 	}
-	w.Write([]byte(fmt.Sprintf("Current input: %s", input)))
+	fmt.Fprintf(w, "Current input: %s", input)
 }
 
 func (s *Server) setInput(w http.ResponseWriter, r *http.Request) {
 	name := r.URL.Query().Get("name")
+	if name == "" {
+		handleError(w, fmt.Errorf("%w: input name cannot be empty", eiscp.ErrValidation))
+		return
+	}
+
 	if err := s.client.PowerOn(); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		handleError(w, err)
 		return
 	}
+
 	if err := s.client.SetInputSelector(name); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		handleError(w, err)
 		return
 	}
-	w.Write([]byte(fmt.Sprintf("Input set to %s", name)))
+
+	fmt.Fprintf(w, "Input set to %s", name)
 }
 
 // Profile handlers
 func (s *Server) getProfile(w http.ResponseWriter, r *http.Request) {
 	currentInput, err := s.client.QueryInputSelector()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		handleError(w, err)
 		return
 	}
+
 	currentVolume, err := s.client.QueryVolume()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		handleError(w, err)
 		return
 	}
+
 	currentSubwoofer, err := s.client.QuerySubwooferLevel()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		handleError(w, err)
 		return
 	}
 
 	profile, exists := s.profiles[currentInput]
 	if !exists {
-		http.Error(w, "Profile not found", http.StatusNotFound)
+		handleError(w, fmt.Errorf("%w: profile not found for input '%s'", eiscp.ErrValidation, currentInput))
 		return
 	}
 
@@ -240,6 +247,7 @@ func (s *Server) getProfile(w http.ResponseWriter, r *http.Request) {
 		SubwooferLevel: currentSubwoofer,
 		MaxVolume:      profile.MaxVolume,
 	}
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
 }
@@ -248,25 +256,30 @@ func (s *Server) setProfile(w http.ResponseWriter, r *http.Request) {
 	name := r.URL.Query().Get("name")
 	profile, exists := s.profiles[name]
 	if !exists {
-		http.Error(w, "Invalid profile name", http.StatusBadRequest)
+		handleError(w, fmt.Errorf("%w: profile '%s' does not exist", eiscp.ErrValidation, name))
 		return
 	}
+
 	if err := s.client.PowerOn(); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		handleError(w, err)
 		return
 	}
+
 	if err := s.client.SetMasterVolume(profile.VolumeLevel); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		handleError(w, err)
 		return
 	}
+
 	if err := s.client.SetSubwooferLevel(profile.SubwooferLevel); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		handleError(w, err)
 		return
 	}
+
 	if err := s.client.SetInputSelector(name); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		handleError(w, err)
 		return
 	}
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(profile)
 }
@@ -274,12 +287,11 @@ func (s *Server) setProfile(w http.ResponseWriter, r *http.Request) {
 func main() {
 	client, err := eiscp.NewEISCPClient("10.205.0.163", "60128")
 	if err != nil {
-		fmt.Println("Error connecting to server:", err)
-		return
+		log.Fatalf("Error connecting to server: %v", err)
 	}
 	defer client.Conn.Close()
-	fmt.Println("Connected to server")
 
+	log.Println("Connected to server")
 	server := NewServer(client)
-	http.ListenAndServe(":8080", server.Routes())
+	log.Fatal(http.ListenAndServe(":8080", server.Routes()))
 }

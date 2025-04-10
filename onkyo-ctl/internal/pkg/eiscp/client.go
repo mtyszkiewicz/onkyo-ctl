@@ -1,11 +1,20 @@
 package eiscp
 
 import (
+	"errors"
 	"fmt"
 	"net"
 	"strconv"
 	"strings"
 	"time"
+)
+
+// Custom error types
+var (
+	ErrValidation = errors.New("validation error")
+	ErrTimeout    = errors.New("timeout error")
+	ErrConnection = errors.New("connection error")
+	ErrTransport  = errors.New("transport error")
 )
 
 type EISCPClient struct {
@@ -17,7 +26,7 @@ func NewEISCPClient(host, port string) (*EISCPClient, error) {
 	serverAddress := net.JoinHostPort(host, port)
 	conn, err := net.DialTimeout("tcp", serverAddress, 5*time.Second)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%w: %v", ErrConnection, err)
 	}
 	client := &EISCPClient{
 		Conn:          conn,
@@ -49,7 +58,10 @@ func (c *EISCPClient) SendCommand(msg string) error {
 
 	packet := NewEISCPPacket(msg)
 	_, err := c.Conn.Write(packet.Bytes())
-	return err
+	if err != nil {
+		return fmt.Errorf("%w: %v", ErrTransport, err)
+	}
+	return nil
 }
 
 // Sends ISCP message and waits for response
@@ -63,7 +75,7 @@ func (c *EISCPClient) SendReceiveCommand(command string) (string, error) {
 	case response := <-c.responseQueue:
 		return UnpackEISCPMessage(response), nil
 	case <-time.After(2 * time.Second):
-		return "", fmt.Errorf("timeout waiting for response")
+		return "", fmt.Errorf("%w: no response received within timeout", ErrTimeout)
 	}
 }
 
@@ -97,9 +109,17 @@ func (c *EISCPClient) VolumeDown() error {
 	return c.SendCommand("MVLDOWN")
 }
 
+func (c *EISCPClient) SubwooferUp() error {
+	return c.SendCommand("SWLUP")
+}
+
+func (c *EISCPClient) SubwooferDown() error {
+	return c.SendCommand("SWLDown")
+}
+
 func (c *EISCPClient) SetMasterVolume(level int) error {
 	if level < 0 || level > 50 {
-		return fmt.Errorf("invalid volume level: %d, must be between 0 and 50", level)
+		return fmt.Errorf("%w: volume level %d must be between 0 and 50", ErrValidation, level)
 	}
 	hexLevel := fmt.Sprintf("%02X", level)
 	return c.SendCommand("MVL" + hexLevel)
@@ -107,7 +127,7 @@ func (c *EISCPClient) SetMasterVolume(level int) error {
 
 func (c *EISCPClient) SetSubwooferLevel(level int) error {
 	if level < -8 || level > 8 {
-		return fmt.Errorf("invalid subwoofer level: %d, must be between -8 and 8", level)
+		return fmt.Errorf("%w: subwoofer level %d must be between -8 and 8", ErrValidation, level)
 	}
 
 	var command string
@@ -123,7 +143,7 @@ func (c *EISCPClient) SetSubwooferLevel(level int) error {
 func (c *EISCPClient) SetInputSelector(input string) error {
 	code, ok := inputCodes[input]
 	if !ok {
-		return fmt.Errorf("invalid input selector: %s", input)
+		return fmt.Errorf("%w: invalid input selector '%s'", ErrValidation, input)
 	}
 	return c.SendCommand("SLI" + code)
 }
@@ -139,7 +159,7 @@ func (c *EISCPClient) QueryInputSelector() (string, error) {
 
 	name, ok := inputNames[code]
 	if !ok {
-		return "", fmt.Errorf("unknown input code: %s", code)
+		return "", fmt.Errorf("%w: unknown input code '%s'", ErrValidation, code)
 	}
 	return name, nil
 }
@@ -154,7 +174,7 @@ func (c *EISCPClient) QueryVolume() (int, error) {
 
 	result, err := strconv.ParseInt(hexValue, 16, 64)
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("%w: failed to parse volume response", ErrTransport)
 	}
 
 	return int(result), nil
@@ -169,7 +189,7 @@ func (c *EISCPClient) QuerySubwooferLevel() (int, error) {
 	response = strings.TrimSuffix(response, "C")
 	result, err := strconv.Atoi(response)
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("%w: failed to parse subwoofer response", ErrTransport)
 	}
 	return result, nil
 }
