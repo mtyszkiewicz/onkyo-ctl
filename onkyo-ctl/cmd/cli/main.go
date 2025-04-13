@@ -205,6 +205,26 @@ func main() {
 					},
 				},
 			},
+			{
+				Name:  "brightness",
+				Usage: "Set brightness level",
+				Action: func(ctx context.Context, cmd *cli.Command) error {
+					if cmd.Args().Len() != 1 {
+						return fmt.Errorf("usage: brightness (0|1|2)")
+					}
+					level, err := strconv.Atoi(cmd.Args().First())
+					if err != nil {
+						return fmt.Errorf("invalid brightness level: %w", err)
+					}
+					return client.SetBrightness(level)
+				},
+			},
+			{
+				Name: "blink",
+				Action: func(ctx context.Context, cmd *cli.Command) error {
+					return client.AnimateBlink()
+				},
+			},
 		},
 		Action: func(ctx context.Context, cmd *cli.Command) error {
 			return cli.ShowAppHelp(cmd)

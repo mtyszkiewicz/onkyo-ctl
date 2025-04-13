@@ -193,3 +193,39 @@ func (c *EISCPClient) QuerySubwooferLevel() (int, error) {
 	}
 	return result, nil
 }
+
+func (c *EISCPClient) SetBrightness(level int) error {
+	if !(level == 0 || level == 1 || level == 2) {
+		return fmt.Errorf("%w: brightness level must be either: 0 - bright, 1 - dim, 2 - dark", ErrValidation)
+	}
+	return c.SendCommand(fmt.Sprintf("DIM0%d", level))
+}
+
+func (c *EISCPClient) AnimateBlink() error {
+	var err error
+
+	err = c.SendCommand("DIM01")
+	if err != nil {
+		return fmt.Errorf("failed to set brightness: %w", err)
+	}
+
+	time.Sleep(60 * time.Millisecond)
+	err = c.SendCommand("DIM00")
+	if err != nil {
+		return fmt.Errorf("failed to set brightness: %w", err)
+	}
+
+	time.Sleep(80 * time.Millisecond)
+	err = c.SendCommand("DIM01")
+	if err != nil {
+		return fmt.Errorf("failed to set brightness: %w", err)
+	}
+
+	time.Sleep(40 * time.Millisecond)
+	err = c.SendCommand("DIM02")
+	if err != nil {
+		return fmt.Errorf("failed to set brightness: %w", err)
+	}
+
+	return nil
+}
