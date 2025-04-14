@@ -1,18 +1,4 @@
 services:
-  watchtower:
-    image: containrrr/watchtower
-    container_name: onkyo-api-watchtower
-    command:
-      - "--label-enable"
-      - "--interval"
-      - "30"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ~/.docker/config.json:/config.json
-    environment:
-      - DOCKER_CONFIG=/
-      - REPO_USER
-      - REPO_PASS
   onkyo-api:
     image: ghcr.io/mtyszkiewicz/onkyo-api:latest
     container_name: onkyo-api
