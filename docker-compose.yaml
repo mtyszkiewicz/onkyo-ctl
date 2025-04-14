@@ -11,8 +11,10 @@ services:
       - ~/.docker/config.json:/config.json
     environment:
       - DOCKER_CONFIG=/
+      - REPO_USER
+      - REPO_PASS
   onkyo-api:
-    image: ghcr.io/mtyszkiewicz/onkyo-api
+    image: ghcr.io/mtyszkiewicz/onkyo-api:latest
     container_name: onkyo-api
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
