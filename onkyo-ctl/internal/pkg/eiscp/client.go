@@ -1,11 +1,20 @@
 package eiscp
 
 import (
+	"errors"
 	"fmt"
 	"net"
 	"strconv"
 	"strings"
 	"time"
+)
+
+// Custom error types
+var (
+	ErrValidation = errors.New("validation error")
+	ErrTimeout    = errors.New("timeout error")
+	ErrConnection = errors.New("connection error")
+	ErrTransport  = errors.New("transport error")
 )
 
 type EISCPClient struct {
@@ -17,7 +26,7 @@ func NewEISCPClient(host, port string) (*EISCPClient, error) {
 	serverAddress := net.JoinHostPort(host, port)
 	conn, err := net.DialTimeout("tcp", serverAddress, 5*time.Second)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%w: %v", ErrConnection, err)
 	}
 	client := &EISCPClient{
 		Conn:          conn,
@@ -41,7 +50,7 @@ func (c *EISCPClient) listen() {
 }
 
 // Sends ISCP message and returns without awaiting the response
-func (c *EISCPClient) sendCommand(msg string) error {
+func (c *EISCPClient) SendCommand(msg string) error {
 	// Clear the response queue
 	for len(c.responseQueue) > 0 {
 		<-c.responseQueue
@@ -49,12 +58,15 @@ func (c *EISCPClient) sendCommand(msg string) error {
 
 	packet := NewEISCPPacket(msg)
 	_, err := c.Conn.Write(packet.Bytes())
-	return err
+	if err != nil {
+		return fmt.Errorf("%w: %v", ErrTransport, err)
+	}
+	return nil
 }
 
 // Sends ISCP message and waits for response
-func (c *EISCPClient) sendReceiveCommand(command string) (string, error) {
-	err := c.sendCommand(command)
+func (c *EISCPClient) SendReceiveCommand(command string) (string, error) {
+	err := c.SendCommand(command)
 	if err != nil {
 		return "", err
 	}
@@ -63,7 +75,7 @@ func (c *EISCPClient) sendReceiveCommand(command string) (string, error) {
 	case response := <-c.responseQueue:
 		return UnpackEISCPMessage(response), nil
 	case <-time.After(2 * time.Second):
-		return "", fmt.Errorf("timeout waiting for response")
+		return "", fmt.Errorf("%w: no response received within timeout", ErrTimeout)
 	}
 }
 
@@ -82,32 +94,40 @@ var inputNames = map[string]string{
 }
 
 func (c *EISCPClient) PowerOn() error {
-	return c.sendCommand("PWR01")
+	return c.SendCommand("PWR01")
 }
 
 func (c *EISCPClient) PowerOff() error {
-	return c.sendCommand("PWR00")
+	return c.SendCommand("PWR00")
 }
 
 func (c *EISCPClient) VolumeUp() error {
-	return c.sendCommand("MVLUP")
+	return c.SendCommand("MVLUP")
 }
 
 func (c *EISCPClient) VolumeDown() error {
-	return c.sendCommand("MVLDOWN")
+	return c.SendCommand("MVLDOWN")
+}
+
+func (c *EISCPClient) SubwooferUp() error {
+	return c.SendCommand("SWLUP")
+}
+
+func (c *EISCPClient) SubwooferDown() error {
+	return c.SendCommand("SWLDOWN")
 }
 
 func (c *EISCPClient) SetMasterVolume(level int) error {
 	if level < 0 || level > 50 {
-		return fmt.Errorf("invalid volume level: %d, must be between 0 and 50", level)
+		return fmt.Errorf("%w: volume level %d must be between 0 and 50", ErrValidation, level)
 	}
 	hexLevel := fmt.Sprintf("%02X", level)
-	return c.sendCommand("MVL" + hexLevel)
+	return c.SendCommand("MVL" + hexLevel)
 }
 
 func (c *EISCPClient) SetSubwooferLevel(level int) error {
 	if level < -8 || level > 8 {
-		return fmt.Errorf("invalid subwoofer level: %d, must be between -8 and 8", level)
+		return fmt.Errorf("%w: subwoofer level %d must be between -8 and 8", ErrValidation, level)
 	}
 
 	var command string
@@ -117,19 +137,19 @@ func (c *EISCPClient) SetSubwooferLevel(level int) error {
 		command = fmt.Sprintf("SWL-%02d", -level)
 	}
 
-	return c.sendCommand(command)
+	return c.SendCommand(command)
 }
 
 func (c *EISCPClient) SetInputSelector(input string) error {
 	code, ok := inputCodes[input]
 	if !ok {
-		return fmt.Errorf("invalid input selector: %s", input)
+		return fmt.Errorf("%w: invalid input selector '%s'", ErrValidation, input)
 	}
-	return c.sendCommand("SLI" + code)
+	return c.SendCommand("SLI" + code)
 }
 
 func (c *EISCPClient) QueryInputSelector() (string, error) {
-	response, err := c.sendReceiveCommand("SLIQSTN")
+	response, err := c.SendReceiveCommand("SLIQSTN")
 	if err != nil {
 		return "", err
 	}
@@ -139,13 +159,13 @@ func (c *EISCPClient) QueryInputSelector() (string, error) {
 
 	name, ok := inputNames[code]
 	if !ok {
-		return "", fmt.Errorf("unknown input code: %s", code)
+		return "", fmt.Errorf("%w: unknown input code '%s'", ErrValidation, code)
 	}
 	return name, nil
 }
 
 func (c *EISCPClient) QueryVolume() (int, error) {
-	response, err := c.sendReceiveCommand("MVLQSTN")
+	response, err := c.SendReceiveCommand("MVLQSTN")
 	if err != nil {
 		return 0, err
 	}
@@ -154,14 +174,14 @@ func (c *EISCPClient) QueryVolume() (int, error) {
 
 	result, err := strconv.ParseInt(hexValue, 16, 64)
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("%w: failed to parse volume response", ErrTransport)
 	}
 
 	return int(result), nil
 }
 
 func (c *EISCPClient) QuerySubwooferLevel() (int, error) {
-	response, err := c.sendReceiveCommand("SWLQSTN")
+	response, err := c.SendReceiveCommand("SWLQSTN")
 	if err != nil {
 		return 0, err
 	}
@@ -169,7 +189,43 @@ func (c *EISCPClient) QuerySubwooferLevel() (int, error) {
 	response = strings.TrimSuffix(response, "C")
 	result, err := strconv.Atoi(response)
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("%w: failed to parse subwoofer response", ErrTransport)
 	}
 	return result, nil
+}
+
+func (c *EISCPClient) SetBrightness(level int) error {
+	if !(level == 0 || level == 1 || level == 2) {
+		return fmt.Errorf("%w: brightness level must be either: 0 - bright, 1 - dim, 2 - dark", ErrValidation)
+	}
+	return c.SendCommand(fmt.Sprintf("DIM0%d", level))
+}
+
+func (c *EISCPClient) AnimateBlink() error {
+	var err error
+
+	err = c.SendCommand("DIM01")
+	if err != nil {
+		return fmt.Errorf("failed to set brightness: %w", err)
+	}
+
+	time.Sleep(60 * time.Millisecond)
+	err = c.SendCommand("DIM00")
+	if err != nil {
+		return fmt.Errorf("failed to set brightness: %w", err)
+	}
+
+	time.Sleep(80 * time.Millisecond)
+	err = c.SendCommand("DIM01")
+	if err != nil {
+		return fmt.Errorf("failed to set brightness: %w", err)
+	}
+
+	time.Sleep(40 * time.Millisecond)
+	err = c.SendCommand("DIM02")
+	if err != nil {
+		return fmt.Errorf("failed to set brightness: %w", err)
+	}
+
+	return nil
 }
