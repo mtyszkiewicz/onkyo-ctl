@@ -29,10 +29,10 @@ func NewServer(client *eiscp.EISCPClient) *Server {
 	return &Server{
 		client: client,
 		profiles: map[string]Profile{
-			"tv":      {Name: "tv", VolumeLevel: 20, SubwooferLevel: 0, MaxVolume: 28},
-			"dj":      {Name: "dj", VolumeLevel: 27, SubwooferLevel: -8, MaxVolume: 35},
+			"tv":      {Name: "tv", VolumeLevel: 22, SubwooferLevel: 0, MaxVolume: 28},
+			"dj":      {Name: "dj", VolumeLevel: 27, SubwooferLevel: -4, MaxVolume: 35},
 			"vinyl":   {Name: "vinyl", VolumeLevel: 20, SubwooferLevel: 0, MaxVolume: 30},
-			"spotify": {Name: "spotify", VolumeLevel: 38, SubwooferLevel: -6, MaxVolume: 50},
+			"spotify": {Name: "spotify", VolumeLevel: 42, SubwooferLevel: 0, MaxVolume: 50},
 		},
 	}
 }
