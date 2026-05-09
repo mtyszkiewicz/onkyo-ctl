@@ -1,0 +1,40 @@
+services:
+  onkyo-api:
+    build: ghcr.io/mtyszkiewicz/onkyo-api:latest
+    ports:
+      - "8001:8080"
+    configs:
+      - source: onkyo_config
+        target: /onkyo_config
+    environment:
+      - ONKYO_CONFIG=/onkyo_config
+    restart: unless-stopped
+
+configs:
+  onkyo_config:
+    content: |
+      onkyo:
+        host: "10.205.0.163"
+        port: "60128"
+
+      profiles:
+        tv:
+          code: "12"
+          volumeLevel: 22
+          subwooferLevel: 0
+          maxVolume: 28
+        dj:
+          code: "10"
+          volumeLevel: 27
+          subwooferLevel: -4
+          maxVolume: 35
+        vinyl:
+          code: "22"
+          volumeLevel: 20
+          subwooferLevel: 0
+          maxVolume: 30
+        spotify:
+          code: "01"
+          volumeLevel: 42
+          subwooferLevel: 0
+          maxVolume: 50
