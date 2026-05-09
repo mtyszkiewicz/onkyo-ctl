@@ -1,8 +1,8 @@
 services:
   onkyo-api:
-    build: .
+    build: ghcr.io/mtyszkiewicz/onkyo-api:latest
     ports:
-      - "8080:8080"
+      - "8001:8080"
     configs:
       - source: onkyo_config
         target: /onkyo_config
