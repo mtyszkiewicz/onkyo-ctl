@@ -6,10 +6,12 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/mtyszkiewicz/eiscp/internal/config"
 	"github.com/mtyszkiewicz/eiscp/internal/pkg/eiscp"
 )
 
@@ -25,15 +27,10 @@ type Server struct {
 	profiles map[string]Profile
 }
 
-func NewServer(client *eiscp.EISCPClient) *Server {
+func NewServer(client *eiscp.EISCPClient, profiles map[string]Profile) *Server {
 	return &Server{
-		client: client,
-		profiles: map[string]Profile{
-			"tv":      {Name: "tv", VolumeLevel: 22, SubwooferLevel: 0, MaxVolume: 28},
-			"dj":      {Name: "dj", VolumeLevel: 27, SubwooferLevel: -4, MaxVolume: 35},
-			"vinyl":   {Name: "vinyl", VolumeLevel: 20, SubwooferLevel: 0, MaxVolume: 30},
-			"spotify": {Name: "spotify", VolumeLevel: 42, SubwooferLevel: 0, MaxVolume: 50},
-		},
+		client:   client,
+		profiles: profiles,
 	}
 }
 
@@ -74,7 +71,6 @@ func (s *Server) Routes() chi.Router {
 	return r
 }
 
-// Helper function to handle errors based on type
 func handleError(w http.ResponseWriter, err error) {
 	switch {
 	case errors.Is(err, eiscp.ErrValidation):
@@ -88,7 +84,6 @@ func handleError(w http.ResponseWriter, err error) {
 	}
 }
 
-// Power handlers
 func (s *Server) getPowerStatus(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "Power status: on")
 }
@@ -109,7 +104,6 @@ func (s *Server) powerOff(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "Power turned off")
 }
 
-// Volume handlers
 func (s *Server) getVolume(w http.ResponseWriter, r *http.Request) {
 	volume, err := s.client.QueryVolume()
 	if err != nil {
@@ -156,7 +150,6 @@ func (s *Server) setVolume(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Volume set to %d", level)
 }
 
-// Subwoofer handlers
 func (s *Server) getSubwoofer(w http.ResponseWriter, r *http.Request) {
 	level, err := s.client.QuerySubwooferLevel()
 	if err != nil {
@@ -203,7 +196,6 @@ func (s *Server) subwooferDown(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "Subwoofer level: Down")
 }
 
-// Input handlers
 func (s *Server) getInput(w http.ResponseWriter, r *http.Request) {
 	input, err := s.client.QueryInputSelector()
 	if err != nil {
@@ -233,7 +225,6 @@ func (s *Server) setInput(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Input set to %s", name)
 }
 
-// Profile handlers
 func (s *Server) getProfile(w http.ResponseWriter, r *http.Request) {
 	currentInput, err := s.client.QueryInputSelector()
 	if err != nil {
@@ -303,13 +294,28 @@ func (s *Server) setProfile(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	client, err := eiscp.NewEISCPClient("10.205.0.163", "60128")
+	cfg, err := config.Load(os.Getenv("ONKYO_CONFIG"))
+	if err != nil {
+		log.Fatalf("Error loading config: %v", err)
+	}
+
+	client, err := eiscp.NewEISCPClient(cfg.Onkyo.Host, cfg.Onkyo.Port, cfg.InputCodes(), cfg.InputNames())
 	if err != nil {
 		log.Fatalf("Error connecting to server: %v", err)
 	}
 	defer client.Conn.Close()
 
+	profiles := make(map[string]Profile, len(cfg.Profiles))
+	for name, p := range cfg.Profiles {
+		profiles[name] = Profile{
+			Name:           name,
+			VolumeLevel:    p.VolumeLevel,
+			SubwooferLevel: p.SubwooferLevel,
+			MaxVolume:      p.MaxVolume,
+		}
+	}
+
 	log.Println("Connected to server")
-	server := NewServer(client)
+	server := NewServer(client, profiles)
 	log.Fatal(http.ListenAndServe(":8080", server.Routes()))
 }
