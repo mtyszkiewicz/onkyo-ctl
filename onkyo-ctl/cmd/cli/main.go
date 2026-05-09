@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/mtyszkiewicz/eiscp/internal/config"
 	"github.com/mtyszkiewicz/eiscp/internal/pkg/eiscp"
 	"github.com/urfave/cli/v3"
 )
@@ -23,23 +24,32 @@ func main() {
 				Name:    "host",
 				Aliases: []string{"H"},
 				Usage:   "Onkyo host ip address",
-				Value:   "127.0.0.1",
 				Sources: cli.EnvVars("ONKYO_HOST"),
 			},
 			&cli.StringFlag{
 				Name:    "port",
 				Aliases: []string{"P"},
 				Usage:   "Onkyo host port",
-				Value:   "60128",
 				Sources: cli.EnvVars("ONKYO_PORT"),
 			},
 		},
 		Before: func(ctx context.Context, cmd *cli.Command) (context.Context, error) {
-			var err error
-			host := cmd.String("host")
-			port := cmd.String("port")
+			cfg, err := config.Load(os.Getenv("ONKYO_CONFIG"))
+			if err != nil {
+				return nil, fmt.Errorf("error loading config: %w", err)
+			}
 
-			client, err = eiscp.NewEISCPClient(host, port)
+			host := cmd.String("host")
+			if host == "" || host == "127.0.0.1" {
+				host = cfg.Onkyo.Host
+			}
+
+			port := cmd.String("port")
+			if port == "" || port == "60128" {
+				port = cfg.Onkyo.Port
+			}
+
+			client, err = eiscp.NewEISCPClient(host, port, cfg.InputCodes(), cfg.InputNames())
 			if err != nil {
 				return nil, fmt.Errorf("error connecting to server: %w", err)
 			}
@@ -170,24 +180,13 @@ func main() {
 					},
 					{
 						Name:  "set",
-						Usage: "Set input source (tv, spotify, dj, vinyl)",
+						Usage: "Set input source",
 						Action: func(ctx context.Context, cmd *cli.Command) error {
 							if cmd.Args().Len() != 1 {
 								return fmt.Errorf("usage: source set <source>")
 							}
 
 							source := strings.ToLower(cmd.Args().First())
-							validSources := map[string]bool{
-								"tv":      true,
-								"spotify": true,
-								"dj":      true,
-								"vinyl":   true,
-							}
-
-							if !validSources[source] {
-								return fmt.Errorf("invalid source '%s'. Available sources: tv, spotify, dj, vinyl", source)
-							}
-
 							return client.SetInputSelector(source)
 						},
 					},
@@ -196,10 +195,9 @@ func main() {
 						Usage: "List available input sources",
 						Action: func(ctx context.Context, cmd *cli.Command) error {
 							fmt.Println("Available sources:")
-							fmt.Println("  - tv")
-							fmt.Println("  - spotify")
-							fmt.Println("  - dj")
-							fmt.Println("  - vinyl")
+							for _, name := range client.ListInputs() {
+								fmt.Printf("  - %s\n", name)
+							}
 							return nil
 						},
 					},
