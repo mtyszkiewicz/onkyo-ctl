@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -20,9 +21,11 @@ var (
 type EISCPClient struct {
 	Conn          net.Conn
 	responseQueue chan string
+	inputCodes    map[string]string
+	inputNames    map[string]string
 }
 
-func NewEISCPClient(host, port string) (*EISCPClient, error) {
+func NewEISCPClient(host, port string, inputCodes, inputNames map[string]string) (*EISCPClient, error) {
 	serverAddress := net.JoinHostPort(host, port)
 	conn, err := net.DialTimeout("tcp", serverAddress, 5*time.Second)
 	if err != nil {
@@ -31,6 +34,8 @@ func NewEISCPClient(host, port string) (*EISCPClient, error) {
 	client := &EISCPClient{
 		Conn:          conn,
 		responseQueue: make(chan string, 100),
+		inputCodes:    inputCodes,
+		inputNames:    inputNames,
 	}
 	go client.listen()
 	return client, nil
@@ -79,18 +84,36 @@ func (c *EISCPClient) SendReceiveCommand(command string) (string, error) {
 	}
 }
 
-var inputCodes = map[string]string{
-	"spotify": "01",
-	"vinyl":   "22",
-	"tv":      "12",
-	"dj":      "10",
+func (c *EISCPClient) SetInputSelector(input string) error {
+	code, ok := c.inputCodes[input]
+	if !ok {
+		return fmt.Errorf("%w: invalid input selector '%s'", ErrValidation, input)
+	}
+	return c.SendCommand("SLI" + code)
 }
 
-var inputNames = map[string]string{
-	"01": "spotify",
-	"22": "vinyl",
-	"12": "tv",
-	"10": "dj",
+func (c *EISCPClient) QueryInputSelector() (string, error) {
+	response, err := c.SendReceiveCommand("SLIQSTN")
+	if err != nil {
+		return "", err
+	}
+
+	code := strings.TrimPrefix(response, "SLI")
+
+	name, ok := c.inputNames[code]
+	if !ok {
+		return "", fmt.Errorf("%w: unknown input code '%s'", ErrValidation, code)
+	}
+	return name, nil
+}
+
+func (c *EISCPClient) ListInputs() []string {
+	names := make([]string, 0, len(c.inputCodes))
+	for name := range c.inputCodes {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	return names
 }
 
 func (c *EISCPClient) PowerOn() error {
@@ -138,30 +161,6 @@ func (c *EISCPClient) SetSubwooferLevel(level int) error {
 	}
 
 	return c.SendCommand(command)
-}
-
-func (c *EISCPClient) SetInputSelector(input string) error {
-	code, ok := inputCodes[input]
-	if !ok {
-		return fmt.Errorf("%w: invalid input selector '%s'", ErrValidation, input)
-	}
-	return c.SendCommand("SLI" + code)
-}
-
-func (c *EISCPClient) QueryInputSelector() (string, error) {
-	response, err := c.SendReceiveCommand("SLIQSTN")
-	if err != nil {
-		return "", err
-	}
-
-	code := strings.TrimPrefix(response, "SLI")
-	// fmt.Printf("Received input code: '%s' (length: %d)\n", code, len(code))
-
-	name, ok := inputNames[code]
-	if !ok {
-		return "", fmt.Errorf("%w: unknown input code '%s'", ErrValidation, code)
-	}
-	return name, nil
 }
 
 func (c *EISCPClient) QueryVolume() (int, error) {
