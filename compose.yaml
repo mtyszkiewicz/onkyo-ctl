@@ -10,7 +10,7 @@ services:
       - ONKYO_CONFIG=/onkyo_config
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-sf", "http://localhost:8080/health"]
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/health"]
       interval: 30s
       timeout: 5s
       retries: 1
@@ -44,4 +44,3 @@ configs:
           volumeLevel: 42
           subwooferLevel: 0
           maxVolume: 50
-
