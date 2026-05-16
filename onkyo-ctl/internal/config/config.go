@@ -9,8 +9,8 @@ import (
 )
 
 type Config struct {
-	Onkyo    OnkyoConfig             `yaml:"onkyo"`
-	Profiles map[string]ProfileCfg   `yaml:"profiles"`
+	Onkyo    OnkyoConfig           `yaml:"onkyo"`
+	Profiles map[string]ProfileCfg `yaml:"profiles"`
 }
 
 type OnkyoConfig struct {

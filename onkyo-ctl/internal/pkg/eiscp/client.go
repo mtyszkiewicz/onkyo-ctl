@@ -10,7 +10,6 @@ import (
 	"time"
 )
 
-// Custom error types
 var (
 	ErrValidation = errors.New("validation error")
 	ErrTimeout    = errors.New("timeout error")
@@ -41,7 +40,6 @@ func NewEISCPClient(host, port string, inputCodes, inputNames map[string]string)
 	return client, nil
 }
 
-// Constatnly puts incoming data into responseQueue
 func (c *EISCPClient) listen() {
 	buf := make([]byte, 1024)
 	for {
@@ -54,9 +52,7 @@ func (c *EISCPClient) listen() {
 	}
 }
 
-// Sends ISCP message and returns without awaiting the response
 func (c *EISCPClient) SendCommand(msg string) error {
-	// Clear the response queue
 	for len(c.responseQueue) > 0 {
 		<-c.responseQueue
 	}
@@ -69,7 +65,6 @@ func (c *EISCPClient) SendCommand(msg string) error {
 	return nil
 }
 
-// Sends ISCP message and waits for response
 func (c *EISCPClient) SendReceiveCommand(command string) (string, error) {
 	err := c.SendCommand(command)
 	if err != nil {
@@ -114,6 +109,23 @@ func (c *EISCPClient) ListInputs() []string {
 	}
 	sort.Strings(names)
 	return names
+}
+
+func (c *EISCPClient) QueryPower() (string, error) {
+	response, err := c.SendReceiveCommand("PWRQSTN")
+	if err != nil {
+		return "", err
+	}
+
+	response = strings.TrimPrefix(response, "PWR")
+	switch response {
+	case "01":
+		return "on", nil
+	case "00":
+		return "off", nil
+	default:
+		return "", fmt.Errorf("%w: unknown power status '%s'", ErrTransport, response)
+	}
 }
 
 func (c *EISCPClient) PowerOn() error {

@@ -70,28 +70,40 @@ func main() {
 					return StartChatSession(client)
 				},
 			},
-			{
-				Name:  "power",
-				Usage: "Control device power",
-				Commands: []*cli.Command{
-					{
-						Name:  "on",
-						Usage: "Turn device on",
-						Action: func(ctx context.Context, cmd *cli.Command) error {
-							return client.PowerOn()
-						},
+		{
+			Name:  "power",
+			Usage: "Control device power",
+			Commands: []*cli.Command{
+				{
+					Name:  "on",
+					Usage: "Turn device on",
+					Action: func(ctx context.Context, cmd *cli.Command) error {
+						return client.PowerOn()
 					},
-					{
-						Name:  "off",
-						Usage: "Turn device off",
-						Action: func(ctx context.Context, cmd *cli.Command) error {
-							return client.PowerOff()
-						},
+				},
+				{
+					Name:  "off",
+					Usage: "Turn device off",
+					Action: func(ctx context.Context, cmd *cli.Command) error {
+						return client.PowerOff()
+					},
+				},
+				{
+					Name:  "query",
+					Usage: "Query current power status",
+					Action: func(ctx context.Context, cmd *cli.Command) error {
+						result, err := client.QueryPower()
+						if err != nil {
+							return err
+						}
+						fmt.Println(result)
+						return nil
 					},
 				},
 			},
-			{
-				Name:  "volume",
+		},
+		{
+			Name:  "volume",
 				Usage: "Control volume settings",
 				Commands: []*cli.Command{
 					{

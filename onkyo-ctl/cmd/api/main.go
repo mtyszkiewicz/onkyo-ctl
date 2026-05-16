@@ -69,9 +69,16 @@ func (s *Server) Routes() chi.Router {
 	})
 
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
+		power, err := s.client.QueryPower()
+		if err != nil {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusServiceUnavailable)
+			json.NewEncoder(w).Encode(map[string]string{"status": "unhealthy", "error": err.Error()})
+			return
+		}
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
+		json.NewEncoder(w).Encode(map[string]string{"status": "ok", "power": power})
 	})
 
 	return r
@@ -91,7 +98,12 @@ func handleError(w http.ResponseWriter, err error) {
 }
 
 func (s *Server) getPowerStatus(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "Power status: on")
+	power, err := s.client.QueryPower()
+	if err != nil {
+		handleError(w, err)
+		return
+	}
+	fmt.Fprintf(w, "Power status: %s", power)
 }
 
 func (s *Server) powerOn(w http.ResponseWriter, r *http.Request) {
